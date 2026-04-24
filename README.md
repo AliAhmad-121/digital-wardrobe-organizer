@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Digital Wardrobe Organizer
 
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
@@ -42,3 +43,6 @@ Navigate to the frontend folder and run:
 
 npm install
 npm start 
+=======
+# digital-wardrobe-organizer
+>>>>>>> 995418096fffe94edd92417a5e76ce7f3380a147
