@@ -16,8 +16,7 @@ __pycache__/
 
 # env
 .env
-=======
->>>>>>> 995418096fffe94edd92417a5e76ce7f3380a147
+
 
 # C extensions
 *.so
