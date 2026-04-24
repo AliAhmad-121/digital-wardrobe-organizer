@@ -5,6 +5,16 @@ __pycache__/
 node_modules/
 build/
 .env
+# frontend
+wardrobe-frontend/node_modules
+wardrobe-frontend/build
+
+# backend
+__pycache__/
+*.pyc
+
+# env
+.env
 
 # C extensions
 *.so
