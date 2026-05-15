@@ -1,9 +1,10 @@
 import React from "react";
+import { cn } from "../../lib/utils";
 
 export function Input({ className = "", ...props }) {
   return (
     <input
-      className={`border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-gray-400 ${className}`}
+      className={cn("input-premium", className)}
       {...props}
     />
   );
