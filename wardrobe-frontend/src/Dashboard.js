@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Card, CardContent } from "./components/ui/card";
@@ -19,6 +19,7 @@ import {
 export default function Dashboard() {
   const [clothes, setClothes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [activeMenu, setActiveMenu] = useState(null);
@@ -36,17 +37,29 @@ export default function Dashboard() {
     return `http://127.0.0.1:8000/uploads/fallback.jpg`;
   };
 
-  const fetchClothes = async () => {
+  const fetchClothes = useCallback(async () => {
     const userId = localStorage.getItem("user_id");
-    const res = await fetch(`http://127.0.0.1:8000/clothes/${userId}`);
-    const data = await res.json();
-    setClothes(Array.isArray(data) ? data : []);
-    setLoading(false);
-  };
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/clothes/${userId}`);
+      const data = await res.json();
+      setClothes(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching clothes:", error);
+      setClothes([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchClothes();
-  }, []);
+  }, [fetchClothes]);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchClothes();
+  };
 
   const filtered = clothes.filter(
     (item) =>
@@ -62,6 +75,7 @@ export default function Dashboard() {
 
   const handleWorn = async (id) => {
     await fetch(`http://127.0.0.1:8000/wear/${id}`, { method: "POST" });
+    fetchClothes();
     setActiveMenu(null);
   };
 
@@ -69,6 +83,14 @@ export default function Dashboard() {
     await fetch(`http://127.0.0.1:8000/toggle-laundry/${id}`, { method: "PUT" });
     fetchClothes();
     setActiveMenu(null);
+  };
+
+  const goToLaundry = () => {
+    navigate("/laundry");
+  };
+
+  const goToWorn = () => {
+    navigate("/worn");
   };
 
   return (
@@ -81,24 +103,24 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-serif font-medium text-gray-900">Your Closet</h1>
+            <h1 className="text-3xl font-serif font-medium text-gray-900 dark:text-white">Your Closet</h1>
             <p className="text-gray-500 mt-1">{clothes.length} items in your wardrobe</p>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Button variant="warning" onClick={() => navigate("/laundry")}>
+            <Button variant="warning" onClick={goToLaundry}>
               <WashingMachine className="w-4 h-4" />
               Laundry
             </Button>
 
-            <Button variant="success" onClick={() => navigate("/worn")}>
+            <Button variant="success" onClick={goToWorn}>
               <CheckCircle className="w-4 h-4" />
               Recently Worn
             </Button>
 
-            <Button variant="secondary" onClick={fetchClothes}>
-              <RefreshCw className="w-4 h-4" />
-              Refresh
+            <Button variant="secondary" onClick={handleRefresh} disabled={refreshing}>
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh'}
             </Button>
 
             <Button onClick={() => navigate("/add-garment")}>
@@ -134,7 +156,7 @@ export default function Dashboard() {
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                         categoryFilter === cat
                           ? "bg-[#c08457] text-white"
-                          : "bg-white/50 text-gray-600 hover:bg-white"
+                          : "bg-white/50 text-gray-600 hover:bg-white dark:bg-gray-800/50 dark:text-gray-300"
                       }`}
                     >
                       {cat}
@@ -154,7 +176,7 @@ export default function Dashboard() {
         ) : filtered.length === 0 ? (
           <div className="glass-card p-12 text-center">
             <Shirt className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No items found</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No items found</h3>
             <p className="text-gray-500 mb-6">
               {search || categoryFilter !== "All"
                 ? "Try adjusting your filters"
@@ -193,24 +215,24 @@ export default function Dashboard() {
 
                     {/* Dropdown Menu */}
                     {activeMenu === item.id && (
-                      <div className="absolute top-12 right-3 bg-white rounded-xl shadow-lg py-2 min-w-[140px] z-10">
+                      <div className="absolute top-12 right-3 bg-white dark:bg-gray-800 rounded-xl shadow-lg py-2 min-w-[140px] z-10">
                         <button
                           onClick={() => handleWorn(item.id)}
-                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
                         >
                           <CheckCircle className="w-4 h-4 text-green-500" />
                           Mark Worn
                         </button>
                         <button
                           onClick={() => handleLaundry(item.id)}
-                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
                         >
                           <WashingMachine className="w-4 h-4 text-orange-500" />
                           To Laundry
                         </button>
                         <button
                           onClick={() => handleDelete(item.id)}
-                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-500"
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 text-red-500"
                         >
                           <Trash2 className="w-4 h-4" />
                           Delete
@@ -227,7 +249,7 @@ export default function Dashboard() {
 
                 {/* Info */}
                 <div className="p-4">
-                  <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white truncate">{item.name}</h3>
                   {item.price && (
                     <p className="text-sm text-gray-500 mt-1">${item.price}</p>
                   )}

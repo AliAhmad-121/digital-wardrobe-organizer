@@ -1,25 +1,43 @@
-import React, { useEffect, useState } from "react";
-import { Card, CardContent } from "./components/ui/card";
-import { Clock, CheckCircle } from "lucide-react";
+import React, { useEffect, useState, useCallback } from "react";
+import { Card} from "./components/ui/card";
+import { Button } from "./components/ui/button";
+import { Clock, CheckCircle, RefreshCw } from "lucide-react";
 
 export default function WornPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchWorn = useCallback(async () => {
+    const userId = localStorage.getItem("user_id");
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/worn/${userId}`);
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching worn items:", error);
+      setItems([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const userId = localStorage.getItem("user_id");
+    fetchWorn();
+  }, [fetchWorn]);
 
-    fetch(`http://127.0.0.1:8000/worn/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setItems(Array.isArray(data) ? data : []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchWorn();
+  };
 
   const getImageUrl = (path) => {
     if (!path) return "";
+    if (path.includes("uploads")) {
+      const filename = path.split(/[/\\]/).pop();
+      return `http://127.0.0.1:8000/uploads/${filename}`;
+    }
     return `http://127.0.0.1:8000${path}`;
   };
 
@@ -66,16 +84,22 @@ export default function WornPage() {
 
       <div className="container py-10 space-y-8 relative z-10">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-serif font-medium text-gray-900">Recently Worn</h1>
-          <p className="text-gray-500 mt-1">Track when you last wore each item</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-serif font-medium text-gray-900 dark:text-white">Recently Worn</h1>
+            <p className="text-gray-500 mt-1">Track when you last wore each item</p>
+          </div>
+          <Button variant="secondary" onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </Button>
         </div>
 
         {items.length === 0 ? (
           <Card className="p-12 text-center">
             <Clock className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Worn History</h3>
-            <p className="text-gray-500">Start tracking by marking items as worn</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Worn History</h3>
+            <p className="text-gray-500">Start tracking by marking items as worn from your closet</p>
           </Card>
         ) : (
           <div className="space-y-10">
@@ -88,7 +112,7 @@ export default function WornPage() {
                     <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
                       <CheckCircle className="w-5 h-5 text-green-600" />
                     </div>
-                    <h2 className="text-lg font-medium text-gray-900">{group}</h2>
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-white">{group}</h2>
                     <span className="text-sm text-gray-400">({groupedItems[group].length} items)</span>
                   </div>
 
@@ -109,7 +133,7 @@ export default function WornPage() {
                           </div>
                         </div>
                         <div className="p-3">
-                          <h3 className="font-medium text-gray-900 text-sm truncate">{item.name}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-white text-sm truncate">{item.name}</h3>
                           {item.last_worn && (
                             <p className="text-xs text-gray-400 mt-1">
                               {new Date(item.last_worn).toLocaleDateString()}

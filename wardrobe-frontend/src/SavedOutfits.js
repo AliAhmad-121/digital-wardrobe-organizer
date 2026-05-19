@@ -6,6 +6,7 @@ import { Calendar, Bookmark, Trash2, Loader2 } from "lucide-react";
 export default function SavedOutfits() {
   const [outfits, setOutfits] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(null);
 
   const fetchOutfits = () => {
     const userId = localStorage.getItem("user_id");
@@ -27,6 +28,20 @@ export default function SavedOutfits() {
   const getImageUrl = (path) => {
     if (!path) return "";
     return `http://127.0.0.1:8000${path}`;
+  };
+
+  const handleDeleteOutfit = async (outfitId) => {
+    setDeleting(outfitId);
+    try {
+      await fetch(`http://127.0.0.1:8000/saved-outfits/${outfitId}`, {
+        method: "DELETE",
+      });
+      fetchOutfits();
+    } catch (error) {
+      console.error("Error deleting outfit:", error);
+    } finally {
+      setDeleting(null);
+    }
   };
 
   // Group by date
@@ -70,14 +85,14 @@ export default function SavedOutfits() {
       <div className="container py-10 space-y-8 relative z-10">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-serif font-medium text-gray-900">Saved Outfits</h1>
+          <h1 className="text-3xl font-serif font-medium text-gray-900 dark:text-white">Saved Outfits</h1>
           <p className="text-gray-500 mt-1">{outfits.length} outfits saved for later</p>
         </div>
 
         {outfits.length === 0 ? (
           <Card className="p-12 text-center">
             <Bookmark className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Saved Outfits</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Saved Outfits</h3>
             <p className="text-gray-500">Save outfits from recommendations to plan your looks ahead</p>
           </Card>
         ) : (
@@ -95,7 +110,7 @@ export default function SavedOutfits() {
                     <div className="w-10 h-10 rounded-xl bg-[#c08457]/10 flex items-center justify-center">
                       <Calendar className="w-5 h-5 text-[#c08457]" />
                     </div>
-                    <h2 className="text-lg font-medium text-gray-900">{formatDate(date)}</h2>
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-white">{formatDate(date)}</h2>
                   </div>
 
                   {/* Outfits for this date */}
@@ -103,25 +118,42 @@ export default function SavedOutfits() {
                     {groupedOutfits[date].map((outfit) => (
                       <Card key={outfit.id} className="p-6">
                         <CardContent className="p-0">
-                          <div className="flex gap-4 flex-wrap">
-                            {Array.isArray(outfit.items) &&
-                              outfit.items.map((item) => (
-                                <div
-                                  key={item.id}
-                                  className="group relative"
-                                >
-                                  <div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-50">
-                                    <img
-                                      src={getImageUrl(item.image)}
-                                      alt={item.name}
-                                      className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                                    />
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex gap-4 flex-wrap flex-1">
+                              {Array.isArray(outfit.items) &&
+                                outfit.items.map((item) => (
+                                  <div
+                                    key={item.id}
+                                    className="group relative"
+                                  >
+                                    <div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-50">
+                                      <img
+                                        src={getImageUrl(item.image)}
+                                        alt={item.name}
+                                        className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                      />
+                                    </div>
+                                    <span className="text-xs text-gray-500 mt-2 block text-center truncate w-24">
+                                      {item.name}
+                                    </span>
                                   </div>
-                                  <span className="text-xs text-gray-500 mt-2 block text-center truncate w-24">
-                                    {item.name}
-                                  </span>
-                                </div>
-                              ))}
+                                ))}
+                            </div>
+                            
+                            {/* Delete Button */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteOutfit(outfit.id)}
+                              disabled={deleting === outfit.id}
+                              className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            >
+                              {deleting === outfit.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>

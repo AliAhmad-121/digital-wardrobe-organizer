@@ -241,7 +241,7 @@ def mark_as_worn(garment_id: int, db: Session = Depends(get_db)):
 # ===============================
 # STATS
 # ===============================
-@router.get("/stats/overview/{user_id}")
+@router.get("/stats/{user_id}")
 def get_stats(user_id: int, db: Session = Depends(get_db)):
 
     garments = db.query(Garment).filter(Garment.user_id == user_id).all()
@@ -636,39 +636,66 @@ def toggle_laundry(garment_id: int, db: Session = Depends(get_db)):
     }
 
 # ===============================
-# LAUNDRY + WORN ITEMS 🔥
+# LAUNDRY ITEMS ONLY
 # ===============================
 @router.get("/laundry/{user_id}")
 def get_laundry_items(user_id: int, db: Session = Depends(get_db)):
 
-    garments = db.query(Garment).filter(Garment.user_id == user_id).all()
+    garments = db.query(Garment).filter(
+        Garment.user_id == user_id
+    ).all()
 
-    worn_items = []
     laundry_items = []
 
     for g in garments:
-        # 🧺 laundry
         if g.in_laundry:
             laundry_items.append(format_item(g))
 
-        # 👕 worn
+    return laundry_items
+
+
+# ===============================
+# WORN ITEMS ONLY
+# ===============================
+@router.get("/worn/{user_id}")
+def get_worn_items(user_id: int, db: Session = Depends(get_db)):
+
+    garments = db.query(Garment).filter(
+        Garment.user_id == user_id
+    ).all()
+
+    worn_items = []
+
+    for g in garments:
         if g.wear_logs:
             last_worn = max(log.date_worn for log in g.wear_logs)
+
             worn_items.append({
                 "name": g.name,
                 "date": last_worn,
                 "image": g.image_path
             })
 
-    return {
-        "worn": worn_items[:10],
-        "laundry": laundry_items
-    }
+    # Show newest worn items first
+    worn_items.sort(
+        key=lambda x: x["date"],
+        reverse=True
+    )
 
+    return worn_items[:20]
+
+
+# ===============================
+# DEBUG DATABASE
+# ===============================
 from sqlalchemy import text
 
 @router.get("/debug-db")
 def debug_db(db: Session = Depends(get_db)):
-    result = db.execute(text("SELECT current_database()")).fetchone()
-    return {"database": result[0]}
+    result = db.execute(
+        text("SELECT current_database()")
+    ).fetchone()
 
+    return {
+        "database": result[0]
+    }
