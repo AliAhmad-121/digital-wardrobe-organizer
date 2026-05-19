@@ -25,6 +25,9 @@ export default function RecommendOutfit() {
   const [saving, setSaving] = useState(false);
   const [wearing, setWearing] = useState(false);
 
+  // 👔 NEW: Occasion-Based Recommendations
+  const [occasion, setOccasion] = useState("Casual");
+
   const getImageUrl = (path) => {
     if (!path) return null;
     return `http://127.0.0.1:8000${path}`;
@@ -42,11 +45,13 @@ export default function RecommendOutfit() {
   const wearOutfit = async () => {
     setWearing(true);
     const ids = data.outfit.map((item) => item.id);
+
     await fetch("http://127.0.0.1:8000/wear-outfit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items: ids }),
     });
+
     setWearing(false);
   };
 
@@ -54,6 +59,7 @@ export default function RecommendOutfit() {
     setSaving(true);
     const userId = localStorage.getItem("user_id");
     const ids = data.outfit.map((item) => item.id);
+
     await fetch("http://127.0.0.1:8000/save-outfit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -63,31 +69,40 @@ export default function RecommendOutfit() {
         date: selectedDate,
       }),
     });
+
     setSaving(false);
   };
 
+  // 👔 UPDATED: Sends occasion to backend
   const fetchOutfit = useCallback(() => {
     const userId = localStorage.getItem("user_id");
     setLoading(true);
-    fetch(`http://127.0.0.1:8000/recommend-outfit/${userId}/${encodeURIComponent(city)}`)
+
+    fetch(
+      `http://127.0.0.1:8000/recommend-outfit/${userId}/${encodeURIComponent(
+        city
+      )}?occasion=${encodeURIComponent(occasion)}`
+    )
       .then((res) => res.json())
       .then((result) => {
         setData(result);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [city]);
+  }, [city, occasion]);
 
   useEffect(() => {
     fetchOutfit();
-  }, []);
+  }, [fetchOutfit]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="spinner border-[#c08457] mx-auto mb-4" />
-          <p className="text-gray-500">Generating your perfect outfit...</p>
+          <p className="text-gray-500">
+            Generating your perfect outfit...
+          </p>
         </div>
       </div>
     );
@@ -98,8 +113,13 @@ export default function RecommendOutfit() {
       <div className="min-h-screen flex items-center justify-center">
         <Card className="p-8 text-center max-w-md">
           <Sparkles className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Outfit Available</h3>
-          <p className="text-gray-500 mb-6">{data?.message || "Add more items to your wardrobe to get recommendations"}</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No Outfit Available
+          </h3>
+          <p className="text-gray-500 mb-6">
+            {data?.message ||
+              "Add more items to your wardrobe to get recommendations"}
+          </p>
           <Button onClick={fetchOutfit}>
             <RefreshCw className="w-4 h-4" />
             Try Again
@@ -120,8 +140,17 @@ export default function RecommendOutfit() {
       <div className="container py-10 space-y-8 relative z-10">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto">
-          <h1 className="text-3xl font-serif font-medium text-gray-900">Today&apos;s Perfect Outfit</h1>
-          <p className="text-gray-500 mt-2">Based on weather, style matching, and your preferences</p>
+          <h1 className="text-3xl font-serif font-medium text-gray-900">
+            Today&apos;s Perfect Outfit
+          </h1>
+          <p className="text-gray-500 mt-2">
+            Based on weather, style matching, and your preferences
+          </p>
+
+          {/* 👔 NEW: Show selected occasion */}
+          <p className="text-sm text-gray-400 mt-1">
+            Occasion: {occasion}
+          </p>
         </div>
 
         {/* Controls Card */}
@@ -139,7 +168,24 @@ export default function RecommendOutfit() {
                 />
               </div>
 
-              <Button variant="secondary" onClick={fetchOutfit}>
+              {/* 👔 NEW: Occasion Selector */}
+              <div className="min-w-[180px]">
+                <select
+                  value={occasion}
+                  onChange={(e) => setOccasion(e.target.value)}
+                  className="w-full border rounded-md px-3 py-2 bg-white"
+                >
+                  <option value="Casual">Casual</option>
+                  <option value="Formal">Formal</option>
+                  <option value="Business">Business</option>
+                  <option value="Party">Party</option>
+                </select>
+              </div>
+
+              <Button
+                variant="secondary"
+                onClick={fetchOutfit}
+              >
                 <RefreshCw className="w-4 h-4" />
                 Update
               </Button>
@@ -150,18 +196,36 @@ export default function RecommendOutfit() {
                 <Input
                   type="date"
                   value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
+                  onChange={(e) =>
+                    setSelectedDate(e.target.value)
+                  }
                   className="pl-11 w-[180px]"
                 />
               </div>
 
-              <Button variant="secondary" onClick={saveOutfit} disabled={saving}>
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              <Button
+                variant="secondary"
+                onClick={saveOutfit}
+                disabled={saving}
+              >
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
                 Save
               </Button>
 
-              <Button variant="success" onClick={wearOutfit} disabled={wearing}>
-                {wearing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+              <Button
+                variant="success"
+                onClick={wearOutfit}
+                disabled={wearing}
+              >
+                {wearing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CheckCircle className="w-4 h-4" />
+                )}
                 Wear Outfit
               </Button>
             </div>
@@ -174,8 +238,12 @@ export default function RecommendOutfit() {
             <div className="glass-card px-8 py-4 inline-flex items-center gap-4">
               <WeatherIcon className="w-8 h-8 text-[#c08457]" />
               <div>
-                <div className="text-2xl font-medium text-gray-900">{data.weather.temp}C</div>
-                <div className="text-sm text-gray-500">{data.weather.condition}</div>
+                <div className="text-2xl font-medium text-gray-900">
+                  {data.weather.temp}C
+                </div>
+                <div className="text-sm text-gray-500">
+                  {data.weather.condition}
+                </div>
               </div>
             </div>
           </div>
@@ -190,7 +258,10 @@ export default function RecommendOutfit() {
             </h3>
             <div className="space-y-2">
               {data.explanation.map((e, i) => (
-                <p key={i} className="text-gray-600 text-sm flex items-start gap-2">
+                <p
+                  key={i}
+                  className="text-gray-600 text-sm flex items-start gap-2"
+                >
                   <span className="w-1.5 h-1.5 rounded-full bg-[#c08457] mt-2 flex-shrink-0" />
                   {e}
                 </p>
@@ -211,9 +282,24 @@ export default function RecommendOutfit() {
                     className="w-full h-full object-cover"
                   />
                 </div>
+
                 <div className="p-4 text-center">
-                  <h3 className="font-medium text-gray-900">{item.name}</h3>
-                  <p className="text-sm text-gray-500 mt-1">{item.category}</p>
+                  <h3 className="font-medium text-gray-900">
+                    {item.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {item.category}
+                  </p>
+                  {item.brand && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {item.brand}
+                    </p>
+                  )}
+                  {item.season && (
+                    <p className="text-xs text-gray-400">
+                      {item.season}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}

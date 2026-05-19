@@ -31,6 +31,24 @@
   --transition-slow: 500ms ease;
 }
 
+/* ===== DARK MODE VARIABLES ===== */
+.dark-mode {
+  --color-cream: #1a1a1a;
+  --color-stone: #2d2d2d;
+  --color-text: #f8f5f2;
+  --color-text-muted: #9ca3af;
+  --color-border: rgba(255, 255, 255, 0.1);
+  
+  /* Dark Glassmorphism */
+  --glass-bg: rgba(30, 30, 30, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  
+  /* Dark Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
 /* Base Styles */
 * {
   box-sizing: border-box;
@@ -47,6 +65,7 @@ body {
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* Serif Font for Headings */
@@ -110,6 +129,10 @@ body {
   color: var(--color-accent);
 }
 
+.dark-mode .btn-secondary:hover {
+  background: rgba(45, 45, 45, 1);
+}
+
 .btn-ghost {
   background: transparent;
   color: var(--color-text-muted);
@@ -124,6 +147,10 @@ body {
 .btn-ghost:hover {
   background: rgba(0, 0, 0, 0.05);
   color: var(--color-text);
+}
+
+.dark-mode .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .btn-success {
@@ -189,6 +216,12 @@ body {
   transition: all var(--transition-base);
 }
 
+.dark-mode .input-premium {
+  background: rgba(45, 45, 45, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f8f5f2;
+}
+
 .input-premium:focus {
   outline: none;
   border-color: var(--color-accent);
@@ -197,6 +230,10 @@ body {
 
 .input-premium::placeholder {
   color: var(--color-text-muted);
+}
+
+.dark-mode .input-premium::placeholder {
+  color: #9ca3af;
 }
 
 /* ===== SELECT ===== */
@@ -218,6 +255,13 @@ body {
   padding-right: 2.5rem;
 }
 
+.dark-mode .select-premium {
+  background-color: rgba(45, 45, 45, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f8f5f2;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+
 .select-premium:focus {
   outline: none;
   border-color: var(--color-accent);
@@ -233,6 +277,10 @@ body {
   animation: float 20s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
+}
+
+.dark-mode .blob {
+  opacity: 0.3;
 }
 
 .blob-1 {
@@ -361,6 +409,10 @@ body {
   background: rgba(0, 0, 0, 0.05);
 }
 
+.dark-mode .nav-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .nav-link.active {
   color: var(--color-accent);
   background: rgba(192, 132, 87, 0.1);
@@ -440,8 +492,16 @@ body {
   border-radius: 4px;
 }
 
+.dark-mode ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* ===== UTILITY CLASSES ===== */
@@ -458,4 +518,109 @@ body {
 
 .shadow-glow {
   box-shadow: 0 0 40px rgba(192, 132, 87, 0.2);
+}
+
+/* ===== DARK MODE TEXT OVERRIDES ===== */
+.dark-mode .text-gray-900 {
+  color: #f8f5f2 !important;
+}
+
+.dark-mode .text-gray-800 {
+  color: #e5e7eb !important;
+}
+
+.dark-mode .text-gray-700 {
+  color: #d1d5db !important;
+}
+
+.dark-mode .text-gray-600,
+.dark-mode .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+.dark-mode .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+/* ===== DARK MODE BACKGROUND OVERRIDES ===== */
+.dark-mode .bg-white {
+  background-color: #2d2d2d !important;
+}
+
+.dark-mode .bg-gray-50 {
+  background-color: #1f1f1f !important;
+}
+
+.dark-mode .bg-gray-100 {
+  background-color: #262626 !important;
+}
+
+.dark-mode .hover\:bg-gray-50:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-mode .hover\:bg-gray-100:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ===== DARK MODE BORDER OVERRIDES ===== */
+.dark-mode .border-gray-200 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-mode .border-gray-300 {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* ===== THEME TOGGLE CONTAINER FIX ===== */
+.dark-mode .bg-white\/80 {
+  background-color: rgba(45, 45, 45, 0.8) !important;
+}
+
+/* ===== DROPDOWN/MENU DARK MODE ===== */
+.dark-mode [class*="dropdown"],
+.dark-mode [class*="menu"] {
+  background: #2d2d2d;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== INPUT GENERAL DARK MODE ===== */
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+  background-color: rgba(45, 45, 45, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f8f5f2;
+}
+
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+  color: #9ca3af;
+}
+/* ===== GARMENT CARD TEXT FIX ===== */
+/* Light mode - dark text */
+.garment-card .garment-name,
+.garment-card h3,
+.garment-card h4,
+.garment-card p,
+.garment-card span:not(.badge) {
+  color: var(--color-text);
+}
+
+/* Ensure garment titles are visible in light mode */
+.garment-card [class*="text-white"] {
+  color: #1a1a1a !important;
+}
+
+.dark-mode .garment-card [class*="text-white"] {
+  color: #f8f5f2 !important;
+}
+
+/* Fix for any hardcoded white text in cards */
+.garment-card .text-white {
+  color: var(--color-text) !important;
+}
+
+.dark-mode .garment-card .text-white {
+  color: #f8f5f2 !important;
 }

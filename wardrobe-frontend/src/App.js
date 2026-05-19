@@ -27,6 +27,7 @@ import AddGarment from "./AddGarment";
 import RecommendOutfit from "./RecommendOutfit";
 import SavedOutfits from "./SavedOutfits";
 import Stats from "./Stats";
+import Settings from "./Settings";
 import WornPage from "./WornPage";
 import LaundryPage from "./LaundryPage";
 
@@ -147,6 +148,7 @@ function Navigation() {
     { path: "/stats", label: "Stats", icon: BarChart3 },
     { path: "/worn", label: "Worn", icon: Clock },
     { path: "/laundry", label: "Laundry", icon: WashingMachine },
+    { path: "/settings", label: "Settings", icon: Palette },
   ];
 
   const handleLogout = () => {
@@ -274,6 +276,7 @@ function App() {
             <Route path="/stats" element={<Stats />} />
             <Route path="/worn" element={<WornPage />} />
             <Route path="/laundry" element={<LaundryPage />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </div>
       </Router>

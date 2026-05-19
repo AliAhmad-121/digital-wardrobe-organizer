@@ -23,22 +23,20 @@ export default function Stats() {
         setStats({
           ...data,
 
-          // Map backend fields to frontend fields
+          // Main cards
           total_items: data.total_garments || 0,
+          avg_cost_per_wear: data.avg_cost_per_wear || 0,
 
-          avg_cost_per_wear:
-            data.total_wears > 0
-              ? (data.total_value / data.total_wears).toFixed(2)
-              : 0,
+          // ✅ Correct field mappings
+          category_breakdown: data.category_counts || {},
+          cost_per_wear: data.cost_per_wear_items || [],
+          most_worn: data.most_worn_items || [],
 
-          // Safe defaults
-          category_breakdown: data.category_breakdown || {},
-          cost_per_wear: data.cost_per_wear || [],
-
-          // Ensure array
-          most_worn: Array.isArray(data.most_worn)
-            ? data.most_worn
-            : []
+          // New analytics sections
+          never_worn_items: data.never_worn_items || [],
+          last_worn_items: data.last_worn_items || [],
+          recent_activity: data.recent_activity || [],
+          insights: data.insights || []
         });
 
         setLoading(false);
@@ -232,9 +230,9 @@ export default function Stats() {
                         className="flex items-center gap-4"
                       >
                         <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                          {item.image && (
+                          {(item.image || item.image_path) && (
                             <img
-                              src={`http://127.0.0.1:8000${item.image}`}
+                              src={`http://127.0.0.1:8000/${(item.image || item.image_path).replace(/^\/+/, "")}`}
                               alt={item.name}
                               className="w-full h-full object-cover"
                             />
@@ -292,9 +290,9 @@ export default function Stats() {
                         className="text-center"
                       >
                         <div className="aspect-square rounded-xl bg-gray-50 overflow-hidden mb-2">
-                          {item.image && (
+                          {(item.image || item.image_path) && (
                             <img
-                              src={`http://127.0.0.1:8000${item.image}`}
+                              src={`http://127.0.0.1:8000/${(item.image || item.image_path).replace(/^\/+/, "")}`}
                               alt={item.name}
                               className="w-full h-full object-cover"
                             />

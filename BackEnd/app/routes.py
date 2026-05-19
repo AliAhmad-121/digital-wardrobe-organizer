@@ -239,13 +239,17 @@ def mark_as_worn(garment_id: int, db: Session = Depends(get_db)):
     return {"message": "updated"}
 
 # ===============================
-# STATS
+# STATS (ENHANCED VERSION)
 # ===============================
 @router.get("/stats/{user_id}")
 def get_stats(user_id: int, db: Session = Depends(get_db)):
 
-    garments = db.query(Garment).filter(Garment.user_id == user_id).all()
+    # Get all garments for this user
+    garments = db.query(Garment).filter(
+        Garment.user_id == user_id
+    ).all()
 
+    # Basic totals
     total_garments = len(garments)
 
     total_wears = (
@@ -255,8 +259,12 @@ def get_stats(user_id: int, db: Session = Depends(get_db)):
         .count()
     )
 
-    most_worn = (
-        db.query(WearLog.garment_id, func.count().label("count"))
+    # Most worn garment (database query)
+    most_worn_query = (
+        db.query(
+            WearLog.garment_id,
+            func.count().label("count")
+        )
         .join(Garment)
         .filter(Garment.user_id == user_id)
         .group_by(WearLog.garment_id)
@@ -264,49 +272,114 @@ def get_stats(user_id: int, db: Session = Depends(get_db)):
         .first()
     )
 
-    # 🔥 NEW: ADVANCED STATS
+    # Data containers
     total_value = 0
     insights = []
     never_worn = []
     last_worn_items = []
+    category_counts = {}
+    cost_per_wear_items = []
+    most_worn_items = []
 
+    # Process every garment
     for garment in garments:
         wear_count = len(garment.wear_logs)
         price = garment.price or 0
+        category = garment.category or "Other"
 
-        # ✅ FIXED: LAST WORN
-        last_worn = None
-        if garment.wear_logs:
-            last_worn = max(log.date_worn for log in garment.wear_logs)
-
-            last_worn_items.append({
-                "name": garment.name,
-                "date": last_worn
-            })
-
+        # Add to total value
         total_value += price
 
-        # 🔁 NEVER WORN
+        # Category breakdown
+        category_counts[category] = (
+            category_counts.get(category, 0) + 1
+        )
+
+        # Never worn
         if wear_count == 0:
             never_worn.append(garment.name)
 
-        # 💰 COST PER WEAR
-        cost_per_wear = price / max(wear_count, 1)
+        # Last worn
+        if garment.wear_logs:
+            last_worn = max(
+                log.date_worn for log in garment.wear_logs
+            )
 
-        # 🧠 INSIGHTS
+            last_worn_items.append({
+                "name": garment.name,
+                "date": str(last_worn),
+                "image": garment.image_path
+            })
+
+        # Cost per wear
+        if wear_count > 0:
+            cpw = round(price / wear_count, 2)
+
+            cost_per_wear_items.append({
+                "name": garment.name,
+                "cost_per_wear": cpw,
+                "wear_count": wear_count,
+                "image": garment.image_path
+            })
+
+        # Most worn list
+        if wear_count > 0:
+            most_worn_items.append({
+                "name": garment.name,
+                "count": wear_count,
+                "wear_count": wear_count,
+                "image": garment.image_path
+            })
+
+        # Smart insights
         if wear_count == 0:
-            insights.append(f"{garment.name} is never worn 😬")
-
-        if cost_per_wear > 20:
-            insights.append(f"{garment.name} is expensive per wear 💸")
+            insights.append(
+                f"{garment.name} has never been worn 👕"
+            )
 
         if wear_count > 10:
-            insights.append(f"{garment.name} is great value 🔥")
+            insights.append(
+                f"{garment.name} is one of your favorites 🔥"
+            )
 
-    # 🔁 ROTATION RATE
-    rotation_rate = total_wears / max(total_garments, 1)
+        if wear_count > 0 and price > 0:
+            cpw = price / wear_count
+            if cpw > 20:
+                insights.append(
+                    f"{garment.name} is expensive per wear 💸"
+                )
 
-    # 🆕 NEW: RECENT ACTIVITY (ONLY ADDED)
+    # Sort last worn (newest first)
+    last_worn_items.sort(
+        key=lambda x: x["date"],
+        reverse=True
+    )
+
+    # Sort most worn
+    most_worn_items.sort(
+        key=lambda x: x["count"],
+        reverse=True
+    )
+
+    # Sort cost per wear
+    cost_per_wear_items.sort(
+        key=lambda x: x["cost_per_wear"],
+        reverse=True
+    )
+
+    # Rotation rate
+    rotation_rate = (
+        total_wears / max(total_garments, 1)
+    )
+
+    # Average cost per wear
+    avg_cost_per_wear = (
+        round(total_value / total_wears, 2)
+        if total_wears > 0
+        else 0
+    )
+
+    # Recent activity
     recent_wears = (
         db.query(WearLog)
         .join(Garment)
@@ -317,29 +390,61 @@ def get_stats(user_id: int, db: Session = Depends(get_db)):
     )
 
     recent_activity = [
-    {
-        "name": w.garment.name,   # ✅ get name
-        "date": w.date_worn
-    }
-    for w in recent_wears
-]
+        {
+            "name": wear.garment.name,
+            "date": str(wear.date_worn),
+            "image": wear.garment.image_path
+        }
+        for wear in recent_wears
+    ]
 
+    # Additional high-level insights
+    if never_worn:
+        insights.append(
+            f"You have {len(never_worn)} item(s) that were never worn 👕"
+        )
+
+    if most_worn_items:
+        insights.append(
+            f"{most_worn_items[0]['name']} is your most worn item 🏆"
+        )
+
+    if avg_cost_per_wear > 0:
+        insights.append(
+            f"Average cost per wear is ${avg_cost_per_wear:.2f} 💰"
+        )
+
+    # Return full analytics
     return {
+        # Basic stats
         "total_garments": total_garments,
         "total_wears": total_wears,
-        "rotation_rate": round(rotation_rate, 2),
         "total_value": total_value,
-        "insights": insights[:5],
-        "most_worn": most_worn.garment_id if most_worn else None,
-        "never_worn_items": never_worn,
+        "rotation_rate": round(rotation_rate, 2),
+        "avg_cost_per_wear": avg_cost_per_wear,
 
-        # ✅ EXISTING
-        "last_worn_items": last_worn_items[:5],
+        # Category data
+        "category_counts": category_counts,
 
-        # 🆕 ONLY NEW LINE
+        # Analytics
+        "last_worn_items": last_worn_items[:10],
+        "never_worn_items": never_worn[:10],
+        "most_worn_items": most_worn_items[:5],
+        "cost_per_wear_items": cost_per_wear_items[:5],
+
+        # Compatibility with old frontend
+        "most_worn": (
+            most_worn_query.garment_id
+            if most_worn_query
+            else None
+        ),
+
+        # Insights
+        "insights": insights[:10],
+
+        # Activity
         "recent_activity": recent_activity
     }
-
 # ===============================
 # WEATHER ONLY 🌤️
 # ===============================

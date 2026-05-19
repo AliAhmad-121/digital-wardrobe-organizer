@@ -22,6 +22,8 @@ class Garment(Base):
     category = Column(String)
     color = Column(String)
     image_path = Column(String)
+    brand = Column(String, nullable=True)
+    season = Column(String, nullable=True)
 
     # 🔥 FIX: make price safe (prevents crashes)
     price = Column(Integer, default=0, nullable=False)

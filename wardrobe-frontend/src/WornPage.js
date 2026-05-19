@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Card} from "./components/ui/card";
+import { Card } from "./components/ui/card";
 import { Button } from "./components/ui/button";
 import { Clock, CheckCircle, RefreshCw } from "lucide-react";
 
@@ -63,7 +63,14 @@ export default function WornPage() {
     groupedItems[group].push(item);
   });
 
-  const groupOrder = ["Today", "Yesterday", "This Week", "This Month", "Earlier", "Never"];
+  const groupOrder = [
+    "Today",
+    "Yesterday",
+    "This Week",
+    "This Month",
+    "Earlier",
+    "Never",
+  ];
 
   if (loading) {
     return (
@@ -86,20 +93,34 @@ export default function WornPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-serif font-medium text-gray-900 dark:text-white">Recently Worn</h1>
-            <p className="text-gray-500 mt-1">Track when you last wore each item</p>
+            <h1 className="text-3xl font-serif font-medium text-gray-900 dark:text-white">
+              Recently Worn
+            </h1>
+            <p className="text-gray-500 mt-1">
+              Track when you last wore each item
+            </p>
           </div>
-          <Button variant="secondary" onClick={handleRefresh} disabled={refreshing}>
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? 'Refreshing...' : 'Refresh'}
+          <Button
+            variant="secondary"
+            onClick={handleRefresh}
+            disabled={refreshing}
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+            />
+            {refreshing ? "Refreshing..." : "Refresh"}
           </Button>
         </div>
 
         {items.length === 0 ? (
           <Card className="p-12 text-center">
             <Clock className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Worn History</h3>
-            <p className="text-gray-500">Start tracking by marking items as worn from your closet</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              No Worn History
+            </h3>
+            <p className="text-gray-500">
+              Start tracking by marking items as worn from your closet
+            </p>
           </Card>
         ) : (
           <div className="space-y-10">
@@ -112,8 +133,12 @@ export default function WornPage() {
                     <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
                       <CheckCircle className="w-5 h-5 text-green-600" />
                     </div>
-                    <h2 className="text-lg font-medium text-gray-900 dark:text-white">{group}</h2>
-                    <span className="text-sm text-gray-400">({groupedItems[group].length} items)</span>
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-white">
+                      {group}
+                    </h2>
+                    <span className="text-sm text-gray-400">
+                      ({groupedItems[group].length} items)
+                    </span>
                   </div>
 
                   {/* Items Grid */}
@@ -128,12 +153,14 @@ export default function WornPage() {
                           />
                           <div className="absolute bottom-2 right-2">
                             <span className="badge badge-success text-xs">
-                              {item.wear_count || 1}x worn
+                              {(item.wear_count || item.count || 1)}x worn
                             </span>
                           </div>
                         </div>
                         <div className="p-3">
-                          <h3 className="font-medium text-gray-900 dark:text-white text-sm truncate">{item.name}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                            {item.name}
+                          </h3>
                           {item.last_worn && (
                             <p className="text-xs text-gray-400 mt-1">
                               {new Date(item.last_worn).toLocaleDateString()}

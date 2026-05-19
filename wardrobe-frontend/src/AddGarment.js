@@ -21,6 +21,8 @@ export default function AddGarment({ refreshClothes }) {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [price, setPrice] = useState("");
+  const [brand, setBrand] = useState("");
+  const [season, setSeason] = useState("");
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
@@ -90,6 +92,8 @@ export default function AddGarment({ refreshClothes }) {
     formData.append("user_id", user_id);
     formData.append("file", file);
     formData.append("price", price || 0);
+    formData.append("brand", brand);
+    formData.append("season", season);
 
     try {
       const response = await fetch("http://127.0.0.1:8000/upload-garment", {
@@ -119,6 +123,8 @@ export default function AddGarment({ refreshClothes }) {
       setFile(null);
       setPreview(null);
       setPrice("");
+      setBrand("");
+      setSeason("");
 
       if (refreshClothes) refreshClothes();
     } catch (error) {
@@ -144,8 +150,12 @@ export default function AddGarment({ refreshClothes }) {
               <Sparkles className="w-4 h-4 text-[#c08457]" />
               Expand Your Wardrobe
             </div>
-            <h1 className="text-3xl font-serif font-medium text-gray-900">Add New Garment</h1>
-            <p className="text-gray-500 mt-2">Upload an image and fill in the details</p>
+            <h1 className="text-3xl font-serif font-medium text-gray-900">
+              Add New Garment
+            </h1>
+            <p className="text-gray-500 mt-2">
+              Upload an image and fill in the details
+            </p>
           </div>
 
           <Card className="p-8">
@@ -153,8 +163,10 @@ export default function AddGarment({ refreshClothes }) {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Image Upload */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Image</label>
-                  
+                  <label className="text-sm font-medium text-gray-700">
+                    Image
+                  </label>
+
                   {!preview ? (
                     <div
                       className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
@@ -166,7 +178,9 @@ export default function AddGarment({ refreshClothes }) {
                       onDragLeave={handleDrag}
                       onDragOver={handleDrag}
                       onDrop={handleDrop}
-                      onClick={() => document.getElementById("file-input").click()}
+                      onClick={() =>
+                        document.getElementById("file-input").click()
+                      }
                     >
                       <input
                         id="file-input"
@@ -176,8 +190,12 @@ export default function AddGarment({ refreshClothes }) {
                         className="hidden"
                       />
                       <Upload className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                      <p className="text-gray-600 mb-1">Drag and drop or click to upload</p>
-                      <p className="text-sm text-gray-400">PNG, JPG up to 10MB</p>
+                      <p className="text-gray-600 mb-1">
+                        Drag and drop or click to upload
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        PNG, JPG up to 10MB
+                      </p>
                     </div>
                   ) : (
                     <div className="relative inline-block">
@@ -199,7 +217,9 @@ export default function AddGarment({ refreshClothes }) {
 
                 {/* Name */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Name</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    Name
+                  </label>
                   <div className="relative">
                     <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <Input
@@ -213,7 +233,9 @@ export default function AddGarment({ refreshClothes }) {
 
                 {/* Category */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Category</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    Category
+                  </label>
                   <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
                     {categories.map((cat) => (
                       <button
@@ -227,7 +249,9 @@ export default function AddGarment({ refreshClothes }) {
                         }`}
                       >
                         <ImageIcon className="w-5 h-5 mx-auto mb-1" />
-                        <span className="text-xs font-medium">{cat.label}</span>
+                        <span className="text-xs font-medium">
+                          {cat.label}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -235,7 +259,9 @@ export default function AddGarment({ refreshClothes }) {
 
                 {/* Price */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Price (optional)</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    Price (optional)
+                  </label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <Input
@@ -248,6 +274,41 @@ export default function AddGarment({ refreshClothes }) {
                   </div>
                 </div>
 
+                {/* Brand */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Brand (optional)
+                  </label>
+                  <div className="relative">
+                    <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Input
+                      placeholder="e.g. Nike"
+                      value={brand}
+                      onChange={(e) => setBrand(e.target.value)}
+                      className="pl-11"
+                    />
+                  </div>
+                </div>
+
+                {/* Season */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Season (optional)
+                  </label>
+                  <select
+                    value={season}
+                    onChange={(e) => setSeason(e.target.value)}
+                    className="w-full border rounded-md px-3 py-2 bg-white"
+                  >
+                    <option value="">Select Season</option>
+                    <option value="Spring">Spring</option>
+                    <option value="Summer">Summer</option>
+                    <option value="Fall">Fall</option>
+                    <option value="Winter">Winter</option>
+                    <option value="All Season">All Season</option>
+                  </select>
+                </div>
+
                 {/* Message */}
                 {message && (
                   <div className={`message-${messageType}`}>
@@ -256,7 +317,11 @@ export default function AddGarment({ refreshClothes }) {
                 )}
 
                 {/* Submit */}
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={loading}
+                >
                   {loading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -276,7 +341,9 @@ export default function AddGarment({ refreshClothes }) {
           {/* Tips Card */}
           <Card className="mt-6 p-6">
             <CardContent className="p-0">
-              <h3 className="font-medium text-gray-900 mb-3">Tips for Best Results</h3>
+              <h3 className="font-medium text-gray-900 mb-3">
+                Tips for Best Results
+              </h3>
               <ul className="space-y-2 text-sm text-gray-500">
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#c08457] mt-2" />

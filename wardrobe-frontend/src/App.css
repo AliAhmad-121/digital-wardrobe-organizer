@@ -1,3 +1,13 @@
+/* ===== LIGHT MODE BASE VARIABLES ===== */
+:root {
+  --color-cream: #f8f5f2;
+  --color-stone: #e8e0d8;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b7280;
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-accent: #c08457;
+}
+
 /* Dark Mode Styles */
 .dark-mode {
   --color-cream: #1a1a1a;
@@ -18,6 +28,11 @@
 }
 
 .dark-mode .garment-card {
+  background: rgba(30, 30, 30, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .stat-card {
   background: rgba(30, 30, 30, 0.8);
   border-color: rgba(255, 255, 255, 0.1);
 }
@@ -61,4 +76,106 @@
 .badge-warning {
   background: rgba(245, 158, 11, 0.1);
   color: #f59e0b;
+}
+
+/* ===== DARK MODE TEXT COLOR OVERRIDES ===== */
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode h5,
+.dark-mode h6 {
+  color: #f8f5f2;
+}
+
+.dark-mode p {
+  color: #d1d5db;
+}
+
+.dark-mode .text-gray-900 {
+  color: #f8f5f2 !important;
+}
+
+.dark-mode .text-gray-800 {
+  color: #e5e7eb !important;
+}
+
+.dark-mode .text-gray-700 {
+  color: #d1d5db !important;
+}
+
+.dark-mode .text-gray-600,
+.dark-mode .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+/* ===== DARK MODE INPUT STYLES ===== */
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+  background-color: rgba(45, 45, 45, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #f8f5f2 !important;
+}
+
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+/* ===== DARK MODE BACKGROUND OVERRIDES ===== */
+.dark-mode .bg-white {
+  background-color: #2d2d2d !important;
+}
+
+.dark-mode .bg-white\/80 {
+  background-color: rgba(45, 45, 45, 0.8) !important;
+}
+
+.dark-mode .bg-gray-50 {
+  background-color: #1f1f1f !important;
+}
+
+.dark-mode .hover\:bg-gray-50:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ===== DARK MODE BORDER OVERRIDES ===== */
+.dark-mode .border-gray-200 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-mode .border-gray-300 {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* ===== DARK MODE NAV LINK ===== */
+.dark-mode .nav-link {
+  color: #9ca3af;
+}
+
+.dark-mode .nav-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f8f5f2;
+}
+
+/* ===== DARK MODE DROPDOWN ===== */
+.dark-mode [class*="dropdown"],
+.dark-mode [class*="menu"] {
+  background: #2d2d2d;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== DARK MODE BLOB OPACITY ===== */
+.dark-mode .blob {
+  opacity: 0.3;
+}
+
+/* ===== DARK MODE SCROLLBAR ===== */
+.dark-mode ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }

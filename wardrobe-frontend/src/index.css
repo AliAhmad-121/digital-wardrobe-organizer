@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --color-cream: #f8f5f2;
+  --color-stone: #e8e0d8;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b7280;
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-accent: #c08457;
+}
+
+.dark-mode {
+  --color-cream: #1a1a1a;
+  --color-stone: #2d2d2d;
+  --color-text: #f8f5f2;
+  --color-text-muted: #9ca3af;
+  --color-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  background: linear-gradient(135deg, var(--color-cream) 0%, var(--color-stone) 100%);
+  color: var(--color-text);
+  transition: background 0.3s ease, color 0.3s ease;
+}

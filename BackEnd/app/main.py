@@ -42,16 +42,36 @@ models.Base.metadata.create_all(bind=engine)
 def fix_database():
     db = SessionLocal()
     try:
+        # Price column
         db.execute(
             text(
                 "ALTER TABLE garments "
                 "ADD COLUMN IF NOT EXISTS price INTEGER DEFAULT 0;"
             )
         )
+
+        # Brand column
+        db.execute(
+            text(
+                "ALTER TABLE garments "
+                "ADD COLUMN IF NOT EXISTS brand VARCHAR;"
+            )
+        )
+
+        # Season column
+        db.execute(
+            text(
+                "ALTER TABLE garments "
+                "ADD COLUMN IF NOT EXISTS season VARCHAR;"
+            )
+        )
+
         db.commit()
-        print(" Database checked / updated (price column)")
+        print("Database checked / updated (price, brand, season columns)")
+
     except Exception as e:
-        print(" DB Fix Error:", e)
+        print("DB Fix Error:", e)
+
     finally:
         db.close()
 
